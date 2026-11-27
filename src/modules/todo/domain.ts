@@ -85,11 +85,6 @@ export function dueInfo(due: string | null): DueInfo | null {
   return { text: `${month} 月 ${day} 日`, tone: "normal" };
 }
 
-export function isUrgent(todo: Todo): boolean {
-  if (todo.done || !todo.due) return false;
-  return todo.due <= todayStr();
-}
-
 export function matchQuery(list: Todo[], query: string): Todo[] {
   const keyword = query.trim().toLowerCase();
   if (!keyword) return list;

@@ -1,7 +1,7 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import { uid } from "@/lib/id";
-import { addDays, dateOf, isUrgent, matchQuery, sortTodos, todayStr } from "./domain";
+import { addDays, dateOf, matchQuery, sortTodos, todayStr } from "./domain";
 import { todoRepo } from "./repo";
 import type { NewTodoInput, Todo } from "./types";
 
@@ -44,10 +44,6 @@ export const useTodoStore = defineStore("todo", () => {
   const total = computed(() => todos.value.length);
   const doneCount = computed(() => todos.value.filter((todo) => todo.done).length);
   const pendingCount = computed(() => total.value - doneCount.value);
-  const percent = computed(() =>
-    total.value ? Math.round((doneCount.value / total.value) * 100) : 0,
-  );
-  const urgentCount = computed(() => todos.value.filter(isUrgent).length);
   const visible = computed(() =>
     matchQuery(sortTodos(todos.value.filter((todo) => !todo.done)), query.value),
   );
@@ -164,8 +160,6 @@ export const useTodoStore = defineStore("todo", () => {
     total,
     doneCount,
     pendingCount,
-    percent,
-    urgentCount,
     visible,
     historyDates,
     historyDayCount,

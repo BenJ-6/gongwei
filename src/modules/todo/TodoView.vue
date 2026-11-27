@@ -19,7 +19,6 @@ import TodoDatePicker from "./components/TodoDatePicker.vue";
 import TodoEmpty from "./components/TodoEmpty.vue";
 import TodoHistoryItem from "./components/TodoHistoryItem.vue";
 import TodoItem from "./components/TodoItem.vue";
-import TodoStats from "./components/TodoStats.vue";
 import { formatDateLabel, formatToday, shortDate, shiftDate, todayStr } from "./domain";
 import { useTodoStore } from "./store";
 
@@ -114,21 +113,6 @@ onDeactivated(() => document.removeEventListener("keydown", onKeydown));
 
       <div class="min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable]">
         <div class="mx-auto w-full max-w-[1160px] px-9 pt-7 pb-6 max-sm:px-3.5 max-sm:pt-5">
-          <header class="mb-5 flex items-end justify-between gap-2.5">
-            <div>
-              <p class="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-accent-foreground">
-                <CalendarDays class="size-3.5" aria-hidden="true" />
-                <time :datetime="todayStr()">{{ formatToday() }}</time>
-              </p>
-              <h1 class="text-[clamp(31px,3vw,43px)] leading-[1.18] font-bold tracking-[-.045em]">待办清单</h1>
-            </div>
-            <Button type="button" aria-keyshortcuts="N" class="h-9.5 gap-1.5 px-3.5 text-[13px]" @click="focusTitle">
-              <Plus class="size-4" aria-hidden="true" />新建待办
-              <Kbd class="border-white/25 bg-white/15 text-white max-sm:hidden">N</Kbd>
-            </Button>
-          </header>
-
-          <TodoStats />
           <TodoComposer ref="composer" />
 
           <Card class="gap-0 overflow-hidden rounded-[20px] py-0 shadow-[0_5px_20px_#321b5507]">
