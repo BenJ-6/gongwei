@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { CornerDownLeft, Flag, Plus } from "lucide-vue-next";
+import { CornerDownLeft, Flag, ListPlus } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -62,8 +62,10 @@ defineExpose({ focusTitle });
         @submit.prevent="submit"
       >
         <label class="col-span-2 flex min-w-0 items-center gap-2 px-1 md:col-span-1">
-          <span class="grid size-7.5 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground">
-            <Plus class="size-4" aria-hidden="true" />
+          <span
+            class="grid size-8 shrink-0 place-items-center rounded-[10px] bg-accent/70 text-accent-foreground/80"
+          >
+            <ListPlus class="size-4.5" aria-hidden="true" />
           </span>
           <Input
             id="todo-title"

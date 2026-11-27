@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { CornerDownLeft, Plus } from "lucide-vue-next";
+import { CornerDownLeft, NotebookPen } from "lucide-vue-next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -58,8 +58,10 @@ defineExpose({ focusTitle });
     <CardContent class="p-3.5">
       <form class="space-y-2.5" aria-label="添加便签" @submit.prevent="submit">
         <div class="flex min-w-0 items-center gap-2">
-          <span class="grid size-7.5 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground">
-            <Plus class="size-4" aria-hidden="true" />
+          <span
+            class="grid size-8 shrink-0 place-items-center rounded-[10px] bg-accent/70 text-accent-foreground/80"
+          >
+            <NotebookPen class="size-4.5" aria-hidden="true" />
           </span>
           <Input
             id="note-title"
