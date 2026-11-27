@@ -1,4 +1,5 @@
 import type Database from "@tauri-apps/plugin-sql";
+import { getDbUrl } from "@/lib/db";
 import { isTauri } from "@/lib/env";
 import type { Todo } from "./types";
 
@@ -10,7 +11,6 @@ export interface TodoRepo {
   clearCompleted(): Promise<void>;
 }
 
-const DB_URL = "sqlite:workbench.db";
 const LOCAL_KEY = "gongwei:todos:v1";
 
 interface TodoRow {
@@ -48,7 +48,7 @@ class SqliteTodoRepo implements TodoRepo {
   private async conn(): Promise<Database> {
     if (!this.db) {
       const { default: SqlDatabase } = await import("@tauri-apps/plugin-sql");
-      this.db = await SqlDatabase.load(DB_URL);
+      this.db = await SqlDatabase.load(await getDbUrl());
     }
     return this.db;
   }

@@ -1,4 +1,5 @@
 import type Database from "@tauri-apps/plugin-sql";
+import { getDbUrl } from "@/lib/db";
 import { isTauri } from "@/lib/env";
 import type { Note, NoteColor } from "./types";
 
@@ -9,7 +10,6 @@ export interface NoteRepo {
   remove(id: string): Promise<void>;
 }
 
-const DB_URL = "sqlite:workbench.db";
 const LOCAL_KEY = "gongwei:notes:v1";
 
 interface NoteRow {
@@ -42,7 +42,7 @@ class SqliteNoteRepo implements NoteRepo {
   private async conn(): Promise<Database> {
     if (!this.db) {
       const { default: SqlDatabase } = await import("@tauri-apps/plugin-sql");
-      this.db = await SqlDatabase.load(DB_URL);
+      this.db = await SqlDatabase.load(await getDbUrl());
     }
     return this.db;
   }

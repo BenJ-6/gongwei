@@ -1603,6 +1603,7 @@ dependencies = [
 name = "gongwei"
 version = "0.1.1"
 dependencies = [
+ "dirs",
  "serde",
  "serde_json",
  "tauri",
