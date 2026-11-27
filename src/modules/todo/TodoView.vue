@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, onActivated, onDeactivated, ref } from "vue";
 import { CalendarDays, ChevronRight, History, ListTodo, Plus, Search, Trash2 } from "lucide-vue-next";
+import { getLocalTimeZone, parseDate, today, type DateValue } from "@internationalized/date";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
   CardContent,
@@ -15,7 +17,6 @@ import { Input } from "@/components/ui/input";
 import { Kbd } from "@/components/ui/kbd";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import TodoComposer from "./components/TodoComposer.vue";
-import TodoDatePicker from "./components/TodoDatePicker.vue";
 import TodoEmpty from "./components/TodoEmpty.vue";
 import TodoHistoryItem from "./components/TodoHistoryItem.vue";
 import TodoItem from "./components/TodoItem.vue";
@@ -27,10 +28,12 @@ const searchInput = ref<InstanceType<typeof Input> | null>(null);
 const composer = ref<InstanceType<typeof TodoComposer> | null>(null);
 
 const quickDates = computed(() => store.historyDates.slice(0, 7));
-const historyDateModel = computed({
-  get: () => store.historyDate,
-  set: (value: string | null) => store.setHistoryDate(value ?? todayStr()),
-});
+const maxDate = today(getLocalTimeZone());
+const historyDateValue = computed(() => parseDate(store.historyDate));
+
+function selectHistoryDate(value: DateValue | undefined): void {
+  if (value) store.setHistoryDate(value.toString());
+}
 
 const emptyState = computed(() => {
   if (!store.total) return { title: "这里还没有待办", hint: "写下第一件要做的事，按回车添加" };
@@ -41,7 +44,7 @@ const emptyState = computed(() => {
 const historyEmpty = computed(() =>
   store.historyDayCount
     ? { title: "没有匹配的完成记录", hint: "试试其他关键词" }
-    : { title: "这一天没有完成记录", hint: "用上方日历切换到其他日期看看" },
+    : { title: "这一天没有完成记录", hint: "换个日期看看" },
 );
 
 function chipLabel(date: string): string {
@@ -163,16 +166,24 @@ onDeactivated(() => document.removeEventListener("keydown", onKeydown));
             </CardFooter>
           </Card>
 
-          <Card class="mt-4 gap-0 overflow-hidden rounded-[20px] py-0 shadow-[0_5px_20px_#321b5507]">
-            <CardHeader class="flex flex-row flex-wrap items-center justify-between gap-3 px-5 pt-4 pb-3">
+          <Card
+            class="mt-4 grid gap-0 overflow-hidden rounded-[20px] py-0 shadow-[0_5px_20px_#321b5507] lg:grid-cols-[268px_minmax(0,1fr)]"
+            aria-labelledby="history-heading"
+          >
+            <aside class="flex min-w-0 flex-col gap-3 border-b p-4 lg:border-r lg:border-b-0">
               <div>
-                <CardTitle class="text-[19px] font-bold tracking-[-.025em]">完成记录</CardTitle>
-                <CardDescription class="mt-1 text-[11px]">选择日期，查看当天完成的任务</CardDescription>
+                <h2 id="history-heading" class="text-[19px] font-bold tracking-[-.025em]">完成记录</h2>
+                <p class="mt-1 text-[11px] text-muted-foreground">点击日历中的日期，查看当天完成的任务</p>
               </div>
-              <TodoDatePicker v-model="historyDateModel" :max="todayStr()" align="end" class="w-[152px]" />
-            </CardHeader>
 
-            <div class="flex flex-wrap items-center justify-between gap-2 px-5 pb-3">
+              <Calendar
+                :model-value="historyDateValue"
+                :max-value="maxDate"
+                locale="zh-CN"
+                class="w-fit max-w-full self-center p-0"
+                @update:model-value="selectHistoryDate"
+              />
+
               <div v-if="quickDates.length" class="flex flex-wrap gap-1.5" role="group" aria-label="有完成记录的日期">
                 <Button
                   v-for="item in quickDates"
@@ -194,47 +205,45 @@ onDeactivated(() => document.removeEventListener("keydown", onKeydown));
                 </Button>
               </div>
               <span v-else class="text-[11px] text-muted-foreground">还没有任何完成记录</span>
+            </aside>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                class="h-7 gap-1 px-2 text-[11px] text-muted-foreground hover:bg-[#fff1ee] hover:text-[#9e392d]"
-                :disabled="!store.doneCount"
-                @click="store.clearCompleted()"
+            <section class="flex min-w-0 flex-col" :aria-label="formatDateLabel(store.historyDate) + '完成的任务'">
+              <header
+                class="flex flex-wrap items-center justify-between gap-2 border-b bg-[#faf8fd] px-5 py-2.5"
               >
-                <Trash2 class="size-3.5" aria-hidden="true" />清空完成记录
-              </Button>
-            </div>
+                <div class="flex flex-wrap items-baseline gap-2">
+                  <strong class="text-xs font-semibold text-foreground">{{ formatDateLabel(store.historyDate) }}</strong>
+                  <span class="text-[11px] text-muted-foreground">完成 {{ store.historyDayCount }} 项</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  class="h-7 gap-1 px-2 text-[11px] text-muted-foreground hover:bg-[#fff1ee] hover:text-[#9e392d]"
+                  :disabled="!store.doneCount"
+                  @click="store.clearCompleted()"
+                >
+                  <Trash2 class="size-3.5" aria-hidden="true" />清空完成记录
+                </Button>
+              </header>
 
-            <div
-              class="flex flex-wrap items-center justify-between gap-2 border-y bg-[#faf8fd] px-5 py-2 text-[11px] text-muted-foreground"
-            >
-              <strong class="text-xs font-semibold text-foreground">{{ formatDateLabel(store.historyDate) }}</strong>
-              <span>完成 {{ store.historyDayCount }} 项</span>
-            </div>
-
-            <CardContent class="p-0">
-              <TodoEmpty
-                v-if="!store.historyItems.length"
-                :icon="History"
-                :title="historyEmpty.title"
-                :hint="historyEmpty.hint"
-              />
-              <div
-                v-else
-                class="divide-y divide-border/70"
-                role="list"
-                :aria-label="formatDateLabel(store.historyDate) + '完成的任务'"
-              >
-                <TodoHistoryItem
-                  v-for="todo in store.historyItems"
-                  :key="todo.id"
-                  :todo="todo"
-                  @restore="store.toggle(todo.id)"
-                  @remove="store.remove(todo.id)"
+              <div class="flex min-h-[240px] flex-1 flex-col">
+                <TodoEmpty
+                  v-if="!store.historyItems.length"
+                  :icon="History"
+                  :title="historyEmpty.title"
+                  :hint="historyEmpty.hint"
                 />
+                <div v-else class="divide-y divide-border/70" role="list">
+                  <TodoHistoryItem
+                    v-for="todo in store.historyItems"
+                    :key="todo.id"
+                    :todo="todo"
+                    @restore="store.toggle(todo.id)"
+                    @remove="store.remove(todo.id)"
+                  />
+                </div>
               </div>
-            </CardContent>
+            </section>
           </Card>
         </div>
       </div>
