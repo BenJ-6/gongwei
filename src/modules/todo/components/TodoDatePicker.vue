@@ -83,7 +83,7 @@ function onSelect(value: DateValue | undefined): void {
       type="button"
       variant="ghost"
       size="icon"
-      class="size-7 shrink-0 text-muted-foreground hover:bg-[#fff1ee] hover:text-[#9e392d]"
+      class="size-7 shrink-0 text-muted-foreground hover:bg-danger-hover hover:text-danger-hover-foreground"
       aria-label="清除日期"
       title="清除日期"
       @click="emit('update:modelValue', null)"

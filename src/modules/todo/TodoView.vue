@@ -118,7 +118,7 @@ onDeactivated(() => document.removeEventListener("keydown", onKeydown));
         <div class="mx-auto w-full max-w-[1160px] px-9 pt-7 pb-6 max-sm:px-3.5 max-sm:pt-5">
           <TodoComposer ref="composer" />
 
-          <Card class="gap-0 overflow-hidden rounded-[20px] py-0 shadow-[0_5px_20px_#321b5507]">
+          <Card class="gap-0 overflow-hidden rounded-[20px] py-0 shadow-[var(--shadow-card)]">
             <CardHeader class="px-5 pt-4 pb-3">
               <CardTitle class="flex items-center gap-2 text-[19px] font-bold tracking-[-.025em]">
                 进行中
@@ -132,7 +132,7 @@ onDeactivated(() => document.removeEventListener("keydown", onKeydown));
             </CardHeader>
 
             <div
-              class="grid grid-cols-[minmax(0,1fr)_minmax(84px,.24fr)_minmax(96px,.29fr)_64px] items-center gap-3 border-y bg-[#faf8fd] px-5 py-2 text-[11px] text-muted-foreground max-sm:hidden"
+              class="grid grid-cols-[minmax(0,1fr)_minmax(84px,.24fr)_minmax(96px,.29fr)_64px] items-center gap-3 border-y bg-surface-subtle px-5 py-2 text-[11px] text-muted-foreground max-sm:hidden"
               aria-hidden="true"
             >
               <span>任务名称</span><span>优先级</span><span>截止日期</span><span class="text-center">操作</span>
@@ -167,7 +167,7 @@ onDeactivated(() => document.removeEventListener("keydown", onKeydown));
           </Card>
 
           <Card
-            class="mt-4 grid gap-0 overflow-hidden rounded-[20px] py-0 shadow-[0_5px_20px_#321b5507] lg:grid-cols-[268px_minmax(0,1fr)]"
+            class="mt-4 grid gap-0 overflow-hidden rounded-[20px] py-0 shadow-[var(--shadow-card)] lg:grid-cols-[268px_minmax(0,1fr)]"
             aria-labelledby="history-heading"
           >
             <aside class="flex min-w-0 flex-col gap-3 border-b p-4 lg:border-r lg:border-b-0">
@@ -193,7 +193,7 @@ onDeactivated(() => document.removeEventListener("keydown", onKeydown));
                   class="h-7 gap-1.5 rounded-full px-2.5 text-[11px] font-semibold shadow-none"
                   :class="
                     store.historyDate === item.date
-                      ? 'border-[#c3aef5] bg-accent text-accent-foreground'
+                      ? 'border-ring/60 bg-accent text-accent-foreground'
                       : 'text-muted-foreground'
                   "
                   :aria-pressed="store.historyDate === item.date"
@@ -209,7 +209,7 @@ onDeactivated(() => document.removeEventListener("keydown", onKeydown));
 
             <section class="flex min-w-0 flex-col" :aria-label="formatDateLabel(store.historyDate) + '完成的任务'">
               <header
-                class="flex flex-wrap items-center justify-between gap-2 border-b bg-[#faf8fd] px-5 py-2.5"
+                class="flex flex-wrap items-center justify-between gap-2 border-b bg-surface-subtle px-5 py-2.5"
               >
                 <div class="flex flex-wrap items-baseline gap-2">
                   <strong class="text-xs font-semibold text-foreground">{{ formatDateLabel(store.historyDate) }}</strong>
@@ -218,7 +218,7 @@ onDeactivated(() => document.removeEventListener("keydown", onKeydown));
                 <Button
                   variant="ghost"
                   size="sm"
-                  class="h-7 gap-1 px-2 text-[11px] text-muted-foreground hover:bg-[#fff1ee] hover:text-[#9e392d]"
+                  class="h-7 gap-1 px-2 text-[11px] text-muted-foreground hover:bg-danger-hover hover:text-danger-hover-foreground"
                   :disabled="!store.doneCount"
                   @click="store.clearCompleted()"
                 >

@@ -34,6 +34,72 @@
   --sidebar-accent-foreground: var(--accent-foreground);
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
+
+  --surface-subtle: #faf8fd;
+  --selection: color-mix(in srgb, var(--primary) 18%, var(--background));
+  --scrollbar-thumb: #d8cde9;
+  --shadow-card: 0 5px 20px #321b5507;
+  --brand-shadow: 0 4px 10px #653ae43d;
+  --swatch-violet: #6338df;
+  --swatch-blue: #2563eb;
+  --swatch-mint: #0f8a63;
+  --swatch-amber: #b26a09;
+
+  --priority-high-bg: #ffebe7;
+  --priority-high-fg: #9b3d36;
+  --priority-normal-bg: #efe9fd;
+  --priority-normal-fg: #5938a2;
+  --priority-low-bg: #eef4ea;
+  --priority-low-fg: #45624a;
+  --due-over: #a13d32;
+  --due-today: #87510b;
+  --success: #6e9a78;
+  --line-through: #a49ab4;
+  --danger-hover-bg: #ffebe7;
+  --danger-hover-fg: #9b3d36;
+
+  --note-violet-border: #e6d9ff;
+  --note-violet-bg: #f6f1ff;
+  --note-violet-accent: #8d63e8;
+  --note-amber-border: #f4e3b8;
+  --note-amber-bg: #fff9eb;
+  --note-amber-accent: #dda53c;
+  --note-mint-border: #cfe9d8;
+  --note-mint-bg: #eff9f3;
+  --note-mint-accent: #4fa97a;
+  --note-rose-border: #f3d6de;
+  --note-rose-bg: #fff2f5;
+  --note-rose-accent: #dc7b96;
+}
+
+html:not(.dark)[data-accent="blue"] {
+  --primary: #2563eb;
+  --primary-foreground: oklch(1 0 0);
+  --secondary-foreground: #172554;
+  --accent: #eff6ff;
+  --accent-foreground: #1d4ed8;
+  --ring: #93c5fd;
+  --brand-shadow: 0 4px 10px #2563eb3d;
+}
+
+html:not(.dark)[data-accent="mint"] {
+  --primary: #0f8a63;
+  --primary-foreground: oklch(1 0 0);
+  --secondary-foreground: #143d31;
+  --accent: #e8f8f1;
+  --accent-foreground: #0b6b4c;
+  --ring: #8dd8bd;
+  --brand-shadow: 0 4px 10px #0f8a633d;
+}
+
+html:not(.dark)[data-accent="amber"] {
+  --primary: #b26a09;
+  --primary-foreground: oklch(1 0 0);
+  --secondary-foreground: #422a0c;
+  --accent: #fff4dc;
+  --accent-foreground: #8a5006;
+  --ring: #e6bd73;
+  --brand-shadow: 0 4px 10px #b26a093d;
 }
 
 .dark {
@@ -56,6 +122,74 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 14%);
   --ring: oklch(0.6 0.12 268);
+
+  --sidebar: oklch(0.215 0.014 265);
+  --sidebar-foreground: oklch(0.71 0.012 265);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--accent-foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--ring);
+
+  --surface-subtle: oklch(1 0 0 / 4%);
+  --selection: color-mix(in srgb, var(--primary) 32%, var(--background));
+  --scrollbar-thumb: oklch(1 0 0 / 18%);
+  --shadow-card: 0 5px 20px oklch(0 0 0 / 35%);
+  --brand-shadow: 0 4px 14px oklch(0 0 0 / 45%);
+
+  --priority-high-bg: oklch(0.32 0.07 20);
+  --priority-high-fg: oklch(0.82 0.1 20);
+  --priority-normal-bg: oklch(0.3 0.06 290);
+  --priority-normal-fg: oklch(0.83 0.08 290);
+  --priority-low-bg: oklch(0.3 0.05 150);
+  --priority-low-fg: oklch(0.82 0.07 150);
+  --due-over: oklch(0.75 0.14 22);
+  --due-today: oklch(0.8 0.12 75);
+  --success: oklch(0.76 0.1 150);
+  --line-through: oklch(0.6 0.02 265);
+  --danger-hover-bg: oklch(0.32 0.08 22);
+  --danger-hover-fg: oklch(0.82 0.11 22);
+
+  --note-violet-border: #4a3a68;
+  --note-violet-bg: #302447;
+  --note-violet-accent: #a98bf0;
+  --note-amber-border: #5a4828;
+  --note-amber-bg: #3a3020;
+  --note-amber-accent: #e7b95e;
+  --note-mint-border: #355c49;
+  --note-mint-bg: #23382f;
+  --note-mint-accent: #6cc296;
+  --note-rose-border: #63404c;
+  --note-rose-bg: #3d2830;
+  --note-rose-accent: #eb9ab0;
+}
+
+.dark[data-accent="blue"] {
+  --primary: oklch(0.68 0.16 250);
+  --primary-foreground: oklch(0.99 0 0);
+  --accent: oklch(0.3 0.04 250);
+  --accent-foreground: oklch(0.9 0.05 250);
+  --ring: oklch(0.65 0.12 250);
+  --brand-shadow: 0 4px 14px oklch(0.55 0.15 250 / 45%);
+}
+
+.dark[data-accent="mint"] {
+  --primary: oklch(0.72 0.12 165);
+  --primary-foreground: oklch(0.2 0.03 165);
+  --accent: oklch(0.3 0.04 165);
+  --accent-foreground: oklch(0.88 0.06 165);
+  --ring: oklch(0.68 0.1 165);
+  --brand-shadow: 0 4px 14px oklch(0.65 0.12 165 / 40%);
+}
+
+.dark[data-accent="amber"] {
+  --primary: oklch(0.76 0.13 75);
+  --primary-foreground: oklch(0.22 0.04 75);
+  --accent: oklch(0.31 0.04 75);
+  --accent-foreground: oklch(0.9 0.06 75);
+  --ring: oklch(0.72 0.11 75);
+  --brand-shadow: 0 4px 14px oklch(0.7 0.13 75 / 40%);
 }
 
 @theme inline {
@@ -87,6 +221,32 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
+  --color-surface-subtle: var(--surface-subtle);
+  --color-priority-high: var(--priority-high-bg);
+  --color-priority-high-foreground: var(--priority-high-fg);
+  --color-priority-normal: var(--priority-normal-bg);
+  --color-priority-normal-foreground: var(--priority-normal-fg);
+  --color-priority-low: var(--priority-low-bg);
+  --color-priority-low-foreground: var(--priority-low-fg);
+  --color-due-over: var(--due-over);
+  --color-due-today: var(--due-today);
+  --color-success: var(--success);
+  --color-line-through: var(--line-through);
+  --color-danger-hover: var(--danger-hover-bg);
+  --color-danger-hover-foreground: var(--danger-hover-fg);
+  --color-note-violet: var(--note-violet-bg);
+  --color-note-violet-border: var(--note-violet-border);
+  --color-note-violet-accent: var(--note-violet-accent);
+  --color-note-amber: var(--note-amber-bg);
+  --color-note-amber-border: var(--note-amber-border);
+  --color-note-amber-accent: var(--note-amber-accent);
+  --color-note-mint: var(--note-mint-bg);
+  --color-note-mint-border: var(--note-mint-border);
+  --color-note-mint-accent: var(--note-mint-accent);
+  --color-note-rose: var(--note-rose-bg);
+  --color-note-rose-border: var(--note-rose-border);
+  --color-note-rose-accent: var(--note-rose-accent);
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -116,7 +276,7 @@
   }
 
   ::selection {
-    background: #e5d9ff;
+    background: var(--selection);
   }
 
   :focus-visible {
@@ -126,6 +286,6 @@
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: #d8cde9 transparent;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
   }
 }

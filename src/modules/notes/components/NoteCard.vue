@@ -64,7 +64,7 @@ function onEditorKeydown(event: KeyboardEvent): void {
           v-if="editing"
           ref="titleInput"
           v-model="draft.title"
-          class="h-7 border-0 bg-white/60 px-1.5 text-[13px] font-bold shadow-none focus-visible:ring-1 dark:bg-black/10"
+          class="h-7 border-0 bg-card/70 px-1.5 text-[13px] font-bold shadow-none focus-visible:ring-1"
           aria-label="便签标题"
           @keydown="onEditorKeydown"
         />
@@ -111,7 +111,7 @@ function onEditorKeydown(event: KeyboardEvent): void {
             <Button
               variant="ghost"
               size="icon"
-              class="size-7 text-muted-foreground hover:bg-[#ffebe7] hover:text-[#9b3d36]"
+              class="size-7 text-muted-foreground hover:bg-danger-hover hover:text-danger-hover-foreground"
               :aria-label="'删除：' + note.title"
               @click="emit('remove')"
             >
@@ -128,7 +128,7 @@ function onEditorKeydown(event: KeyboardEvent): void {
         v-model="draft.content"
         rows="6"
         aria-label="便签内容"
-        class="mt-3 w-full resize-none rounded-xl border border-input/70 bg-white/60 p-2.5 text-[12.5px] leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-ring/50 dark:bg-black/10"
+        class="mt-3 w-full resize-none rounded-xl border border-input/70 bg-card/70 p-2.5 text-[12.5px] leading-relaxed outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
         @keydown="onEditorKeydown"
       />
 

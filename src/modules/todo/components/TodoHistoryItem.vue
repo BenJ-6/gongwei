@@ -14,9 +14,9 @@ const emit = defineEmits<{
 }>();
 
 const PRIORITY_CLASS: Record<Priority, string> = {
-  high: "bg-[#ffebe7] text-[#9b3d36]",
-  normal: "bg-[#efe9fd] text-[#5938a2]",
-  low: "bg-[#eef4ea] text-[#45624a]",
+  high: "bg-priority-high text-priority-high-foreground",
+  normal: "bg-priority-normal text-priority-normal-foreground",
+  low: "bg-priority-low text-priority-low-foreground",
 };
 
 const priorityLabel = computed(() =>
@@ -32,13 +32,13 @@ const finishedAt = computed(() => (props.todo.completedAt ? timeOf(props.todo.co
     class="grid grid-cols-[18px_minmax(0,1fr)_auto_64px] items-center gap-3 px-5 py-1.5 transition-colors hover:bg-accent/30 max-sm:grid-cols-[16px_minmax(0,1fr)_auto] max-sm:gap-x-2 max-sm:px-3"
     role="listitem"
   >
-    <span class="grid place-items-center text-[#6e9a78] max-sm:row-span-2">
+    <span class="grid place-items-center text-success max-sm:row-span-2">
       <CheckCircle2 class="size-4" aria-hidden="true" />
     </span>
 
     <div class="flex min-w-0 items-center gap-2 max-sm:col-start-2">
       <span
-        class="min-w-0 text-[13px] leading-relaxed font-semibold break-words text-muted-foreground line-through decoration-[#a49ab4]"
+        class="min-w-0 text-[13px] leading-relaxed font-semibold break-words text-muted-foreground line-through decoration-line-through"
         :title="todo.title"
       >
         {{ todo.title }}
@@ -76,7 +76,7 @@ const finishedAt = computed(() => (props.todo.completedAt ? timeOf(props.todo.co
           <Button
             variant="ghost"
             size="icon"
-            class="size-7 text-muted-foreground hover:bg-[#ffebe7] hover:text-[#9b3d36]"
+            class="size-7 text-muted-foreground hover:bg-danger-hover hover:text-danger-hover-foreground"
             :aria-label="'删除记录：' + todo.title"
             @click="emit('remove')"
           >

@@ -54,7 +54,7 @@ defineExpose({ focusTitle });
 </script>
 
 <template>
-  <Card class="mb-4 rounded-[20px] py-0 shadow-[0_5px_20px_#321b5507]">
+  <Card class="mb-4 rounded-[20px] py-0 shadow-[var(--shadow-card)]">
     <CardContent class="p-3.5">
       <form class="space-y-2.5" aria-label="添加便签" @submit.prevent="submit">
         <div class="flex min-w-0 items-center gap-2">

@@ -65,7 +65,7 @@ async function close(): Promise<void> {
 
         <button
           type="button"
-          class="grid w-[46px] place-items-center text-muted-foreground transition-colors hover:bg-[#e81123] hover:text-white"
+          class="grid w-[46px] place-items-center text-muted-foreground transition-colors hover:bg-destructive hover:text-destructive-foreground"
           title="关闭"
           aria-label="关闭"
           @click="close"

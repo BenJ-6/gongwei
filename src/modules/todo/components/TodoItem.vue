@@ -17,14 +17,14 @@ const emit = defineEmits<{
 }>();
 
 const PRIORITY_CLASS: Record<Priority, string> = {
-  high: "bg-[#ffebe7] text-[#9b3d36]",
-  normal: "bg-[#efe9fd] text-[#5938a2]",
-  low: "bg-[#eef4ea] text-[#45624a]",
+  high: "bg-priority-high text-priority-high-foreground",
+  normal: "bg-priority-normal text-priority-normal-foreground",
+  low: "bg-priority-low text-priority-low-foreground",
 };
 
 const DUE_CLASS: Record<DueTone, string> = {
-  over: "text-[#a13d32]",
-  today: "text-[#87510b]",
+  over: "text-due-over",
+  today: "text-due-today",
   soon: "text-muted-foreground",
   normal: "text-muted-foreground",
 };
@@ -89,7 +89,7 @@ async function onEditKeydown(event: KeyboardEvent): Promise<void> {
       <span
         v-else
         class="min-w-0 cursor-text text-[13px] leading-relaxed font-semibold break-words"
-        :class="{ 'text-muted-foreground line-through decoration-[#a49ab4]': todo.done }"
+        :class="{ 'text-muted-foreground line-through decoration-line-through': todo.done }"
         title="双击重命名"
         @dblclick="startEdit"
       >
@@ -140,7 +140,7 @@ async function onEditKeydown(event: KeyboardEvent): Promise<void> {
           <Button
             variant="ghost"
             size="icon"
-            class="size-7 text-muted-foreground hover:bg-[#ffebe7] hover:text-[#9b3d36]"
+            class="size-7 text-muted-foreground hover:bg-danger-hover hover:text-danger-hover-foreground"
             :aria-label="'删除：' + todo.title"
             @click="emit('remove')"
           >

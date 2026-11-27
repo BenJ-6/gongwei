@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { Info } from "lucide-vue-next";
+import { Info, Settings2 } from "lucide-vue-next";
 import AboutDialog from "@/components/AboutDialog.vue";
 import { APP_VERSION } from "@/lib/appInfo";
 import { useUpdate } from "@/lib/update";
@@ -9,7 +9,10 @@ import { moduleGroups, modules } from "@/modules/registry";
 const active = defineModel<string>({ required: true });
 
 const groups = moduleGroups
-  .map((group) => ({ group, items: modules.filter((item) => item.group === group) }))
+  .map((group) => ({
+    group,
+    items: modules.filter((item) => item.group === group && item.showInNav !== false),
+  }))
   .filter(({ items }) => items.length > 0);
 
 const badgeCounts = computed(() =>
@@ -52,11 +55,25 @@ const aboutOpen = ref(false);
 
     <div class="sidebar-footer">
       <span class="version">v{{ APP_VERSION }}</span>
-      <button type="button" class="about-link" @click="aboutOpen = true">
-        <Info class="size-[13px]" aria-hidden="true" />
-        <span class="about-label">关于</span>
-        <span v-if="hasUpdate" class="update-dot" aria-hidden="true" />
-      </button>
+      <div class="footer-actions">
+        <button
+          type="button"
+          class="footer-link"
+          :class="{ current: active === 'settings' }"
+          title="系统设置"
+          aria-label="系统设置"
+          :aria-current="active === 'settings' ? 'page' : undefined"
+          @click="active = 'settings'"
+        >
+          <Settings2 class="size-[13px]" aria-hidden="true" />
+          <span class="footer-label">设置</span>
+        </button>
+        <button type="button" class="footer-link" @click="aboutOpen = true">
+          <Info class="size-[13px]" aria-hidden="true" />
+          <span class="footer-label">关于</span>
+          <span v-if="hasUpdate" class="update-dot" aria-hidden="true" />
+        </button>
+      </div>
     </div>
 
     <AboutDialog :open="aboutOpen" @close="aboutOpen = false" />
@@ -78,7 +95,7 @@ const aboutOpen = ref(false);
 .brand-mark {
   flex: none;
   border-radius: 13px;
-  box-shadow: 0 4px 10px #653ae43d;
+  box-shadow: var(--brand-shadow);
 }
 .brand strong { display: block; font-size: 19px; line-height: 1.2; letter-spacing: .06em; }
 .brand small { font-size: 10px; font-weight: 650; letter-spacing: .14em; color: var(--sidebar-foreground); }
@@ -115,7 +132,8 @@ const aboutOpen = ref(false);
   border-top: 1px solid var(--sidebar-border);
 }
 .version { padding: 0 6px; color: var(--sidebar-foreground); font-size: 11.5px; }
-.about-link {
+.footer-actions { display: inline-flex; align-items: center; gap: 2px; }
+.footer-link {
   position: relative;
   display: inline-flex;
   align-items: center;
@@ -126,8 +144,13 @@ const aboutOpen = ref(false);
   font-size: 11.5px;
   font-weight: 500;
 }
-.about-link:hover { color: var(--foreground); background: var(--secondary); }
-.about-link svg { stroke-width: 1.8; }
+.footer-link:hover { color: var(--foreground); background: var(--secondary); }
+.footer-link.current {
+  color: var(--sidebar-accent-foreground);
+  background: var(--sidebar-accent);
+  font-weight: 600;
+}
+.footer-link svg { stroke-width: 1.8; }
 .update-dot {
   position: absolute;
   top: 2px;
@@ -147,7 +170,7 @@ const aboutOpen = ref(false);
   .sidebar { padding: 20px 9px 16px; align-items: center; }
   .sidebar nav { width: 100%; }
   .brand { margin: 0 0 23px; }
-  .brand-text, .nav-label, .nav-link span, .nav-link small, .version, .about-label {
+  .brand-text, .nav-label, .nav-link span, .nav-link small, .version, .footer-label {
     display: none;
   }
   .nav-link { justify-content: center; padding: 0; }

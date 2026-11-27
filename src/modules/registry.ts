@@ -22,7 +22,14 @@ export const modules: WorkbenchModule[] = [
     component: defineAsyncComponent(() => import("./notes/NotesView.vue")),
     badge: () => useNoteStore().total,
   },
-  { key: "settings", name: "设置", group: "工具", icon: Settings2, disabled: true },
+  {
+    key: "settings",
+    name: "系统设置",
+    group: "系统",
+    icon: Settings2,
+    component: defineAsyncComponent(() => import("./settings/SettingsView.vue")),
+    showInNav: false,
+  },
 ];
 
-export const moduleGroups = ["日常", "工具"];
+export const moduleGroups = ["日常"];
