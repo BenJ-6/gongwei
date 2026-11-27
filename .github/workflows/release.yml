@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    # 在仓库 Settings → Environments 新建环境 release，
+    # 添加 Required reviewers 与 Tag 规则 v*，让发布必须经过审批
+    environment:
+      name: release
+      url: https://github.com/BenJ-6/gongwei/releases
+    steps:
+      - uses: actions/checkout@v4
+
+      # 版本号以 tauri.conf.json 为准，三处版本号必须一致
+      - name: 校验版本号
+        run: node scripts/check-versions.mjs ${{ github.ref_name }}
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: 安装依赖
+        run: bun install --frozen-lockfile
+
+      # 必须使用 v1：v0 用 ASCII 化后的资产名反查下载地址，遇到中文产物名会匹配失败
+      - name: 构建并发布
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "工位 v__VERSION__"
+          releaseBody: |
+            Windows 用户可下载下方安装包安装。
+          releaseDraft: true
+          prerelease: false
+          # GitHub 会把非 ASCII 文件名改名（中文被删成 `_0.1.0_x64-setup.exe`），
+          # 这里用 Cargo 包名生成 ASCII 资产名：gongwei_0.1.0_x64-setup.exe
+          releaseAssetNamePattern: "[mainBinaryName]_[version]_[arch][setup][ext]"
+          args: --target x86_64-pc-windows-msvc
