@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { Info, LayoutGrid } from "lucide-vue-next";
+import { Info } from "lucide-vue-next";
 import AboutDialog from "@/components/AboutDialog.vue";
 import { APP_VERSION } from "@/lib/appInfo";
 import { useUpdate } from "@/lib/update";
@@ -23,7 +23,7 @@ const aboutOpen = ref(false);
 <template>
   <aside class="sidebar" aria-label="工位导航">
     <div class="brand">
-      <div class="brand-mark"><LayoutGrid aria-hidden="true" /></div>
+      <img class="brand-mark" src="/gongwei.svg" alt="" width="42" height="42" />
       <div class="brand-text"><strong>工位</strong><small>GONGWEI</small></div>
     </div>
 
@@ -76,17 +76,10 @@ const aboutOpen = ref(false);
 
 .brand { display: flex; align-items: center; gap: 11px; margin: 0 8px 41px; }
 .brand-mark {
-  display: grid;
   flex: none;
-  place-items: center;
-  width: 42px;
-  height: 42px;
   border-radius: 13px;
-  color: var(--sidebar-primary-foreground);
-  background: var(--sidebar-primary);
   box-shadow: 0 4px 10px #653ae43d;
 }
-.brand-mark svg { width: 22px; height: 22px; stroke-width: 1.7; }
 .brand strong { display: block; font-size: 19px; line-height: 1.2; letter-spacing: .06em; }
 .brand small { font-size: 10px; font-weight: 650; letter-spacing: .14em; color: var(--sidebar-foreground); }
 

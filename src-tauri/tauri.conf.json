@@ -34,6 +34,7 @@
     "licenseFile": "../LICENSE",
     "windows": {
       "nsis": {
+        "installerIcon": "icons/icon.ico",
         "languages": ["SimpChinese", "English"],
         "displayLanguageSelector": false
       }
