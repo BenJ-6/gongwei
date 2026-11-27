@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onActivated, onDeactivated, ref } from "vue";
-import { CalendarDays, ChevronRight, History, ListTodo, Plus, Search, Trash2 } from "lucide-vue-next";
+import { ChevronRight, History, ListTodo, Search, Trash2 } from "lucide-vue-next";
 import { getLocalTimeZone, parseDate, today, type DateValue } from "@internationalized/date";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ import TodoComposer from "./components/TodoComposer.vue";
 import TodoEmpty from "./components/TodoEmpty.vue";
 import TodoHistoryItem from "./components/TodoHistoryItem.vue";
 import TodoItem from "./components/TodoItem.vue";
-import { formatDateLabel, formatToday, shortDate, shiftDate, todayStr } from "./domain";
+import { formatDateLabel, shortDate, shiftDate, todayStr } from "./domain";
 import { useTodoStore } from "./store";
 
 const store = useTodoStore();

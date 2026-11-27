@@ -1,6 +1,9 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { LayoutGrid } from "lucide-vue-next";
+import { computed, ref } from "vue";
+import { Info, LayoutGrid } from "lucide-vue-next";
+import AboutDialog from "@/components/AboutDialog.vue";
+import { APP_VERSION } from "@/lib/appInfo";
+import { useUpdate } from "@/lib/update";
 import { moduleGroups, modules } from "@/modules/registry";
 
 const active = defineModel<string>({ required: true });
@@ -12,6 +15,9 @@ const groups = moduleGroups
 const badgeCounts = computed(() =>
   Object.fromEntries(modules.map((item) => [item.key, item.badge?.() ?? 0])),
 );
+
+const { hasUpdate } = useUpdate();
+const aboutOpen = ref(false);
 </script>
 
 <template>
@@ -45,9 +51,15 @@ const badgeCounts = computed(() =>
     </nav>
 
     <div class="sidebar-footer">
-      <span class="avatar" aria-hidden="true">GW</span>
-      <div><strong>我的工位</strong><p>数据保存在本机</p></div>
+      <span class="version">v{{ APP_VERSION }}</span>
+      <button type="button" class="about-link" @click="aboutOpen = true">
+        <Info class="size-[13px]" aria-hidden="true" />
+        <span class="about-label">关于</span>
+        <span v-if="hasUpdate" class="update-dot" aria-hidden="true" />
+      </button>
     </div>
+
+    <AboutDialog :open="aboutOpen" @close="aboutOpen = false" />
   </aside>
 </template>
 
@@ -101,27 +113,38 @@ const badgeCounts = computed(() =>
 .nav-count { min-width: 23px; padding: 2px 4px; text-align: center; border-radius: 6px; background: var(--card); }
 
 .sidebar-footer {
-  margin-top: auto;
-  padding: 16px 4px 0;
-  border-top: 1px solid var(--sidebar-border);
   display: flex;
   align-items: center;
-  gap: 9px;
+  justify-content: space-between;
+  gap: 4px;
+  margin-top: auto;
+  padding: 11px 4px 0;
+  border-top: 1px solid var(--sidebar-border);
 }
-.avatar {
-  display: grid;
-  flex: none;
-  place-items: center;
-  width: 34px;
-  height: 34px;
+.version { padding: 0 6px; color: var(--sidebar-foreground); font-size: 11.5px; }
+.about-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  color: var(--sidebar-foreground);
+  font-size: 11.5px;
+  font-weight: 500;
+}
+.about-link:hover { color: var(--foreground); background: var(--secondary); }
+.about-link svg { stroke-width: 1.8; }
+.update-dot {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  color: var(--sidebar-accent-foreground);
-  background: #e9e0ff;
-  font-size: 11px;
-  font-weight: 750;
+  background: var(--primary);
+  box-shadow: 0 0 0 2px var(--sidebar);
 }
-.sidebar-footer strong { font-size: 12px; }
-.sidebar-footer p { margin-top: 3px; color: var(--sidebar-foreground); font-size: 10px; }
 
 @media (max-width: 1050px) {
   .sidebar { padding-inline: 12px; }
@@ -131,9 +154,11 @@ const badgeCounts = computed(() =>
   .sidebar { padding: 20px 9px 16px; align-items: center; }
   .sidebar nav { width: 100%; }
   .brand { margin: 0 0 23px; }
-  .brand-text, .nav-label, .nav-link span, .nav-link small, .sidebar-footer div { display: none; }
+  .brand-text, .nav-label, .nav-link span, .nav-link small, .version, .about-label {
+    display: none;
+  }
   .nav-link { justify-content: center; padding: 0; }
-  .sidebar-footer { padding-inline: 0; }
+  .sidebar-footer { justify-content: center; padding-inline: 0; }
 }
 
 @media (max-width: 620px) {
