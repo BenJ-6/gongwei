@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -93,6 +94,8 @@
 
   --font-sans: "Segoe UI", "Microsoft YaHei UI", "PingFang SC", "Hiragino Sans GB", ui-sans-serif,
     system-ui, sans-serif;
+
+  --font-heading: var(--font-sans);
 }
 
 @layer base {

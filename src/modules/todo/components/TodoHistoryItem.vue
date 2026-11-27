@@ -1,14 +1,23 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { CheckCircle2, RotateCcw, Trash2 } from "lucide-vue-next";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { PRIORITY_LABEL, timeOf } from "../domain";
-import type { Todo } from "../types";
+import type { Priority, Todo } from "../types";
 
 const props = defineProps<{ todo: Todo }>();
 const emit = defineEmits<{
   restore: [];
   remove: [];
 }>();
+
+const PRIORITY_CLASS: Record<Priority, string> = {
+  high: "bg-[#ffebe7] text-[#9b3d36]",
+  normal: "bg-[#efe9fd] text-[#5938a2]",
+  low: "bg-[#eef4ea] text-[#45624a]",
+};
 
 const priorityLabel = computed(() =>
   props.todo.priority === "normal"
@@ -19,35 +28,63 @@ const finishedAt = computed(() => (props.todo.completedAt ? timeOf(props.todo.co
 </script>
 
 <template>
-  <div class="history-row" role="listitem">
-    <span class="history-check"><CheckCircle2 aria-hidden="true" /></span>
-    <div class="history-name">
-      <span class="history-title" :title="todo.title">{{ todo.title }}</span>
-      <span class="pill" :class="todo.priority">{{ priorityLabel }}</span>
+  <div
+    class="grid grid-cols-[18px_minmax(0,1fr)_auto_64px] items-center gap-3 px-5 py-1.5 transition-colors hover:bg-accent/30 max-sm:grid-cols-[16px_minmax(0,1fr)_auto] max-sm:gap-x-2 max-sm:px-3"
+    role="listitem"
+  >
+    <span class="grid place-items-center text-[#6e9a78] max-sm:row-span-2">
+      <CheckCircle2 class="size-4" aria-hidden="true" />
+    </span>
+
+    <div class="flex min-w-0 items-center gap-2 max-sm:col-start-2">
+      <span
+        class="min-w-0 text-[13px] leading-relaxed font-semibold break-words text-muted-foreground line-through decoration-[#a49ab4]"
+        :title="todo.title"
+      >
+        {{ todo.title }}
+      </span>
+      <Badge variant="secondary" :class="PRIORITY_CLASS[todo.priority]">{{ priorityLabel }}</Badge>
     </div>
-    <time v-if="finishedAt" class="history-time" :datetime="new Date(todo.completedAt ?? 0).toISOString()">
+
+    <time
+      v-if="finishedAt"
+      class="text-[11px] whitespace-nowrap tabular-nums text-muted-foreground max-sm:col-start-2 max-sm:row-start-2 max-sm:text-[10px]"
+      :datetime="new Date(todo.completedAt ?? 0).toISOString()"
+    >
       {{ finishedAt }} 完成
     </time>
-    <span v-else class="history-time">—</span>
-    <div class="actions">
-      <button
-        class="icon-button"
-        type="button"
-        title="恢复为待办"
-        :aria-label="'恢复为待办：' + todo.title"
-        @click="emit('restore')"
-      >
-        <RotateCcw aria-hidden="true" />
-      </button>
-      <button
-        class="icon-button delete"
-        type="button"
-        title="删除记录"
-        :aria-label="'删除记录：' + todo.title"
-        @click="emit('remove')"
-      >
-        <Trash2 aria-hidden="true" />
-      </button>
+    <span v-else class="text-[11px] text-muted-foreground max-sm:col-start-2 max-sm:row-start-2">—</span>
+
+    <div class="flex justify-end gap-0.5 max-sm:col-start-3 max-sm:row-span-2 max-sm:row-start-1">
+      <Tooltip>
+        <TooltipTrigger as-child>
+          <Button
+            variant="ghost"
+            size="icon"
+            class="size-7 text-muted-foreground"
+            :aria-label="'恢复为待办：' + todo.title"
+            @click="emit('restore')"
+          >
+            <RotateCcw class="size-3.5" aria-hidden="true" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>恢复为待办</TooltipContent>
+      </Tooltip>
+
+      <Tooltip>
+        <TooltipTrigger as-child>
+          <Button
+            variant="ghost"
+            size="icon"
+            class="size-7 text-muted-foreground hover:bg-[#ffebe7] hover:text-[#9b3d36]"
+            :aria-label="'删除记录：' + todo.title"
+            @click="emit('remove')"
+          >
+            <Trash2 class="size-3.5" aria-hidden="true" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>删除记录</TooltipContent>
+      </Tooltip>
     </div>
   </div>
 </template>

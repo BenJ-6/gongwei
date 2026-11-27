@@ -1,17 +1,35 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { CalendarDays, CornerDownLeft, Flag, Plus } from "lucide-vue-next";
+import { CornerDownLeft, Flag, Plus } from "lucide-vue-next";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import TodoDatePicker from "./TodoDatePicker.vue";
 import { useTodoStore } from "../store";
 import type { Priority } from "../types";
 
 const store = useTodoStore();
-const titleInput = ref<HTMLInputElement | null>(null);
+const titleInput = ref<InstanceType<typeof Input> | null>(null);
 const title = ref("");
 const priority = ref<Priority>("normal");
-const due = ref("");
+const due = ref<string | null>(null);
+
+const priorities: { value: Priority; label: string }[] = [
+  { value: "high", label: "高优先级" },
+  { value: "normal", label: "普通" },
+  { value: "low", label: "低优先级" },
+];
 
 function focusTitle(): void {
-  titleInput.value?.focus();
+  const element = titleInput.value?.$el as HTMLInputElement | undefined;
+  element?.focus();
 }
 
 async function submit(): Promise<void> {
@@ -21,12 +39,12 @@ async function submit(): Promise<void> {
     return;
   }
 
-  const adding = store.add({ title: value, priority: priority.value, due: due.value || null });
+  const adding = store.add({ title: value, priority: priority.value, due: due.value ?? null });
   if (store.query.trim() && !value.toLowerCase().includes(store.query.trim().toLowerCase())) {
     store.query = "";
   }
   title.value = "";
-  due.value = "";
+  due.value = null;
   priority.value = "normal";
   focusTitle();
   await adding;
@@ -36,33 +54,46 @@ defineExpose({ focusTitle });
 </script>
 
 <template>
-  <form class="composer" aria-label="添加待办" @submit.prevent="submit">
-    <label class="task-entry">
-      <span class="entry-icon"><Plus aria-hidden="true" /></span>
-      <input
-        id="todo-title"
-        ref="titleInput"
-        v-model="title"
-        aria-label="待办标题"
-        placeholder="写下一件要做的事…"
-        autocomplete="off"
-      />
-    </label>
+  <Card class="mb-4 rounded-2xl py-0 shadow-sm">
+    <CardContent class="p-2.5">
+      <form
+        class="grid grid-cols-2 items-center gap-2 md:grid-cols-[minmax(0,1fr)_130px_184px_auto]"
+        aria-label="添加待办"
+        @submit.prevent="submit"
+      >
+        <label class="col-span-2 flex min-w-0 items-center gap-2 px-1 md:col-span-1">
+          <span class="grid size-7.5 shrink-0 place-items-center rounded-lg bg-accent text-accent-foreground">
+            <Plus class="size-4" aria-hidden="true" />
+          </span>
+          <Input
+            id="todo-title"
+            ref="titleInput"
+            v-model="title"
+            aria-label="待办标题"
+            placeholder="写下一件要做的事…"
+            autocomplete="off"
+            class="h-9 border-0 bg-transparent px-0 shadow-none focus-visible:border-0 focus-visible:ring-0"
+          />
+        </label>
 
-    <label class="field">
-      <Flag aria-hidden="true" />
-      <select v-model="priority" aria-label="优先级">
-        <option value="high">高优先级</option>
-        <option value="normal">普通</option>
-        <option value="low">低优先级</option>
-      </select>
-    </label>
+        <Select v-model="priority">
+          <SelectTrigger class="h-9 w-full gap-1.5 border-border bg-secondary px-2.5 text-xs font-normal shadow-none" aria-label="优先级">
+            <Flag class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem v-for="item in priorities" :key="item.value" :value="item.value">
+              {{ item.label }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
 
-    <label class="field">
-      <CalendarDays aria-hidden="true" />
-      <input v-model="due" type="date" aria-label="截止日期" title="截止日期（可选）" />
-    </label>
+        <TodoDatePicker v-model="due" placeholder="截止日期" clearable class="w-full" />
 
-    <button class="primary" type="submit">添加 <CornerDownLeft aria-hidden="true" /></button>
-  </form>
+        <Button type="submit" class="col-span-2 h-9 gap-1.5 px-3.5 text-[13px] md:col-span-1">
+          添加<CornerDownLeft class="size-3.5" aria-hidden="true" />
+        </Button>
+      </form>
+    </CardContent>
+  </Card>
 </template>

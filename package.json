@@ -10,7 +10,7 @@
     "tauri": "tauri"
   },
   "dependencies": {
-    "@lucide/vue": "^1.80.0",
+    "@lucide/vue": "^1.81.0",
     "@tailwindcss/vite": "^4.3.5",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
