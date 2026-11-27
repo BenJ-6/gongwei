@@ -1,30 +1,9 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import { uid } from "@/lib/id";
-import { addDays, dateOf, matchQuery, sortTodos, todayStr } from "./domain";
+import { dateOf, matchQuery, sortTodos, todayStr } from "./domain";
 import { todoRepo } from "./repo";
 import type { NewTodoInput, Todo } from "./types";
-
-const SEED_FLAG = "gongwei:seeded:v1";
-
-function seedTodos(): Todo[] {
-  const now = Date.now();
-  const items: Array<Omit<Todo, "id" | "createdAt" | "updatedAt" | "completedAt" | "sortOrder">> = [
-    { title: "梳理工位第一版的功能范围", done: false, priority: "high", due: todayStr() },
-    { title: "整理待办清单的交互细节（增删改查 / 筛选）", done: false, priority: "normal", due: addDays(2) },
-    { title: "确认本地存储方案（SQLite）", done: false, priority: "normal", due: null },
-    { title: "画一版主界面配色与布局", done: true, priority: "low", due: null },
-  ];
-
-  return items.map((item, index) => ({
-    ...item,
-    id: uid(),
-    createdAt: now - index * 1000,
-    updatedAt: now - index * 1000,
-    completedAt: item.done ? now - index * 1000 : null,
-    sortOrder: now - index,
-  }));
-}
 
 async function persist(task: () => Promise<void>): Promise<void> {
   try {
@@ -74,13 +53,6 @@ export const useTodoStore = defineStore("todo", () => {
     loading.value = true;
     try {
       todos.value = await todoRepo.list();
-      if (!todos.value.length && !localStorage.getItem(SEED_FLAG)) {
-        localStorage.setItem(SEED_FLAG, "1");
-        for (const todo of seedTodos()) {
-          await todoRepo.create(todo);
-        }
-        todos.value = await todoRepo.list();
-      }
     } catch (error) {
       console.error("[todo] 初始化失败", error);
     } finally {

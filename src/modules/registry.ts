@@ -1,6 +1,7 @@
 import { defineAsyncComponent } from "vue";
 import { CalendarDays, ListTodo, NotebookPen, Settings2 } from "lucide-vue-next";
 import type { WorkbenchModule } from "./types";
+import { useNoteStore } from "./notes/store";
 import { useTodoStore } from "./todo/store";
 
 export const modules: WorkbenchModule[] = [
@@ -13,7 +14,14 @@ export const modules: WorkbenchModule[] = [
     badge: () => useTodoStore().pendingCount,
   },
   { key: "schedule", name: "日程安排", group: "日常", icon: CalendarDays, disabled: true },
-  { key: "notes", name: "笔记便签", group: "日常", icon: NotebookPen, disabled: true },
+  {
+    key: "notes",
+    name: "笔记便签",
+    group: "日常",
+    icon: NotebookPen,
+    component: defineAsyncComponent(() => import("./notes/NotesView.vue")),
+    badge: () => useNoteStore().total,
+  },
   { key: "settings", name: "设置", group: "工具", icon: Settings2, disabled: true },
 ];
 
