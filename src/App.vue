@@ -14,9 +14,7 @@ const activeModule = computed(
   <div class="flex h-screen flex-col overflow-hidden">
     <TitleBar />
 
-    <div
-      class="grid min-h-0 flex-1 grid-cols-[232px_minmax(0,1fr)] overflow-hidden max-[900px]:grid-cols-[68px_minmax(0,1fr)]"
-    >
+    <div class="workbench-shell">
       <AppSidebar v-model="activeKey" />
 
       <main class="flex min-w-0 flex-col overflow-hidden">
@@ -31,3 +29,25 @@ const activeModule = computed(
     </div>
   </div>
 </template>
+
+<style scoped>
+.workbench-shell {
+  display: grid;
+  flex: 1;
+  min-height: 0;
+  grid-template-columns: 208px minmax(0, 1fr);
+  overflow: hidden;
+}
+
+@media (max-width: 1050px) {
+  .workbench-shell { grid-template-columns: 180px minmax(0, 1fr); }
+}
+
+@media (max-width: 850px) {
+  .workbench-shell { grid-template-columns: 65px minmax(0, 1fr); }
+}
+
+@media (max-width: 620px) {
+  .workbench-shell { grid-template-columns: minmax(0, 1fr); }
+}
+</style>

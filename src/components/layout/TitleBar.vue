@@ -2,7 +2,7 @@
 import { onMounted, onUnmounted, ref } from "vue";
 import { getCurrentWindow, type Window } from "@tauri-apps/api/window";
 import type { UnlistenFn } from "@tauri-apps/api/event";
-import { Copy, Layers, Minus, Square, X } from "lucide-vue-next";
+import { Copy, Minus, Square, X } from "lucide-vue-next";
 import { isTauri } from "@/lib/env";
 
 const appWindow: Window | null = isTauri ? getCurrentWindow() : null;
@@ -37,34 +37,16 @@ async function close(): Promise<void> {
 </script>
 
 <template>
-  <header class="flex h-9 shrink-0 select-none" data-tauri-drag-region>
-    <div
-      class="flex w-[232px] shrink-0 items-center gap-2 bg-sidebar px-3 max-[900px]:w-[68px] max-[900px]:justify-center"
-      data-tauri-drag-region
-    >
-      <div
-        class="pointer-events-none grid size-5 shrink-0 place-items-center rounded-md bg-linear-to-br from-indigo-500 to-violet-500 text-white"
-      >
-        <Layers class="size-3" />
-      </div>
-      <span
-        class="pointer-events-none text-[13px] font-semibold tracking-wide text-white/90 max-[900px]:hidden"
-      >
-        工位
-      </span>
-      <span class="pointer-events-none ml-auto text-[10px] text-white/25 max-[900px]:hidden">
-        v0.1
-      </span>
-    </div>
-
+  <header v-if="appWindow" class="flex h-8 shrink-0 select-none border-b bg-sidebar" data-tauri-drag-region>
     <div class="flex flex-1 items-stretch" data-tauri-drag-region>
       <div class="flex-1" data-tauri-drag-region />
 
-      <div v-if="appWindow" class="flex items-stretch">
+      <div class="flex items-stretch">
         <button
           type="button"
           class="grid w-[46px] place-items-center text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           title="最小化"
+          aria-label="最小化"
           @click="minimize"
         >
           <Minus class="pointer-events-none size-4" />
@@ -74,6 +56,7 @@ async function close(): Promise<void> {
           type="button"
           class="grid w-[46px] place-items-center text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
           :title="maximized ? '还原' : '最大化'"
+          :aria-label="maximized ? '还原' : '最大化'"
           @click="toggleMaximize"
         >
           <Copy v-if="maximized" class="pointer-events-none size-3.5" />
@@ -84,6 +67,7 @@ async function close(): Promise<void> {
           type="button"
           class="grid w-[46px] place-items-center text-muted-foreground transition-colors hover:bg-[#e81123] hover:text-white"
           title="关闭"
+          aria-label="关闭"
           @click="close"
         >
           <X class="pointer-events-none size-4" />

@@ -1,4 +1,4 @@
-import type { Priority, Todo, TodoFilter } from "./types";
+import type { Priority, Todo } from "./types";
 
 const DAY_MS = 86_400_000;
 
@@ -27,6 +27,34 @@ export function addDays(days: number): string {
   const date = new Date();
   date.setDate(date.getDate() + days);
   return todayStr(date);
+}
+
+/** 日期字符串平移若干天 */
+export function shiftDate(date: string, days: number): string {
+  const [year, month, day] = date.split("-").map(Number);
+  return todayStr(new Date(year, month - 1, day + days));
+}
+
+/** 时间戳对应的本地日期 */
+export function dateOf(timestamp: number): string {
+  return todayStr(new Date(timestamp));
+}
+
+/** 时间戳对应的本地时刻 HH:mm */
+export function timeOf(timestamp: number): string {
+  const date = new Date(timestamp);
+  return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+export function formatDateLabel(date: string): string {
+  const [year, month, day] = date.split("-").map(Number);
+  const week = ["日", "一", "二", "三", "四", "五", "六"][new Date(year, month - 1, day).getDay()];
+  return `${year} 年 ${month} 月 ${day} 日 · 星期${week}`;
+}
+
+export function shortDate(date: string): string {
+  const [, month, day] = date.split("-").map(Number);
+  return `${month} 月 ${day} 日`;
 }
 
 /** 两个 YYYY-MM-DD 相差天数（按 UTC 计算，避免夏令时误差） */
@@ -62,14 +90,10 @@ export function isUrgent(todo: Todo): boolean {
   return todo.due <= todayStr();
 }
 
-export function filterTodos(list: Todo[], filter: TodoFilter, query: string): Todo[] {
+export function matchQuery(list: Todo[], query: string): Todo[] {
   const keyword = query.trim().toLowerCase();
-  return list.filter((todo) => {
-    if (filter === "active" && todo.done) return false;
-    if (filter === "done" && !todo.done) return false;
-    if (!keyword) return true;
-    return todo.title.toLowerCase().includes(keyword);
-  });
+  if (!keyword) return list;
+  return list.filter((todo) => todo.title.toLowerCase().includes(keyword));
 }
 
 export function sortTodos(list: Todo[]): Todo[] {
@@ -86,6 +110,5 @@ export function sortTodos(list: Todo[]): Todo[] {
 }
 
 export function formatToday(base = new Date()): string {
-  const week = ["日", "一", "二", "三", "四", "五", "六"][base.getDay()];
-  return `${base.getFullYear()} 年 ${base.getMonth() + 1} 月 ${base.getDate()} 日 · 星期${week}`;
+  return formatDateLabel(todayStr(base));
 }

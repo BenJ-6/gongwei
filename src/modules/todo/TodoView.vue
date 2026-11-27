@@ -1,189 +1,204 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from "vue";
-import { ListTodo, Search } from "lucide-vue-next";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { computed, onActivated, onDeactivated, ref } from "vue";
+import { CalendarDays, ChevronRight, History, ListTodo, Plus, Search, Trash2 } from "lucide-vue-next";
 import TodoComposer from "./components/TodoComposer.vue";
+import TodoHistoryItem from "./components/TodoHistoryItem.vue";
 import TodoItem from "./components/TodoItem.vue";
 import TodoStats from "./components/TodoStats.vue";
-import { formatToday } from "./domain";
+import { formatDateLabel, formatToday, shortDate, shiftDate, todayStr } from "./domain";
 import { useTodoStore } from "./store";
-import type { Todo, TodoFilter } from "./types";
 
 const store = useTodoStore();
+const searchInput = ref<HTMLInputElement | null>(null);
+const composer = ref<InstanceType<typeof TodoComposer> | null>(null);
 
-const filters: Array<{ value: TodoFilter; label: string }> = [
-  { value: "all", label: "全部" },
-  { value: "active", label: "进行中" },
-  { value: "done", label: "已完成" },
-];
+const quickDates = computed(() => store.historyDates.slice(0, 7));
 
-const groups = computed<Array<{ title: string; items: Todo[] }>>(() => {
-  const list = store.visible;
-  if (store.filter !== "all") return [{ title: "", items: list }];
-
-  const active = list.filter((item) => !item.done);
-  const done = list.filter((item) => item.done);
-  const result: Array<{ title: string; items: Todo[] }> = [];
-  if (active.length) result.push({ title: "进行中", items: active });
-  if (done.length) result.push({ title: "已完成", items: done });
-  return result;
+const emptyState = computed(() => {
+  if (!store.total) return { title: "这里还没有待办", hint: "写下第一件要做的事，按回车添加" };
+  if (store.query.trim()) return { title: "没有匹配的待办", hint: "试试其他关键词" };
+  return { title: "待办都完成了", hint: "完成的任务已移入下方「完成记录」" };
 });
 
-const hasVisible = computed(() => store.visible.length > 0);
-const isInitialLoading = computed(() => store.loading && !store.initialized);
+const historyEmpty = computed(() =>
+  store.historyDayCount
+    ? { title: "没有匹配的完成记录", hint: "试试其他关键词" }
+    : { title: "这一天没有完成记录", hint: "用上方日历切换到其他日期看看" },
+);
 
-function focusSearch(): void {
-  (document.getElementById("todo-search") as HTMLInputElement | null)?.focus();
+function chipLabel(date: string): string {
+  const today = todayStr();
+  if (date === today) return "今天";
+  if (date === shiftDate(today, -1)) return "昨天";
+  return shortDate(date);
 }
 
 function focusTitle(): void {
-  (document.getElementById("todo-title") as HTMLInputElement | null)?.focus();
+  composer.value?.focusTitle();
 }
 
 function onKeydown(event: KeyboardEvent): void {
-  if (event.metaKey || event.ctrlKey || event.altKey) return;
-
-  const target = event.target as HTMLElement | null;
-  const tag = target?.tagName.toLowerCase();
-  if (tag === "input" || tag === "textarea" || tag === "select") return;
+  if (event.defaultPrevented || event.isComposing || event.metaKey || event.ctrlKey || event.altKey) return;
+  if (event.target instanceof HTMLElement && (event.target.isContentEditable ||
+    event.target.closest("input, textarea, select"))) return;
 
   if (event.key === "/") {
     event.preventDefault();
-    focusSearch();
-  } else if (event.key === "n") {
+    searchInput.value?.focus();
+  } else if (event.key.toLowerCase() === "n") {
     event.preventDefault();
     focusTitle();
   }
 }
 
-onMounted(() => {
+onActivated(() => {
   void store.init();
   document.addEventListener("keydown", onKeydown);
 });
-
-onUnmounted(() => {
-  document.removeEventListener("keydown", onKeydown);
-});
+onDeactivated(() => document.removeEventListener("keydown", onKeydown));
 </script>
 
 <template>
-  <div class="flex h-full min-h-0 flex-col">
-    <header class="flex items-start gap-4 px-8 pt-7 pb-4">
-      <div>
-        <h1 class="text-xl font-semibold tracking-tight">待办清单</h1>
-        <p class="mt-1 text-xs text-muted-foreground">{{ formatToday() }}</p>
-      </div>
-      <div class="relative ml-auto">
-        <Search
-          class="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground"
-        />
-        <Input
-          id="todo-search"
-          v-model="store.query"
-          placeholder="搜索待办…"
-          autocomplete="off"
-          class="h-9 w-56 pl-8"
-        />
-      </div>
-    </header>
-
-    <div class="min-h-0 flex-1 overflow-y-auto px-8 pb-7">
-      <TodoStats />
-      <TodoComposer class="mt-4" />
-
-      <div class="mb-2 flex items-center gap-1">
-        <button
-          v-for="item in filters"
-          :key="item.value"
-          type="button"
-          :class="
-            cn(
-              'flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-[13px] transition-colors',
-              store.filter === item.value
-                ? 'bg-accent font-semibold text-accent-foreground'
-                : 'text-muted-foreground hover:bg-secondary',
-            )
-          "
-          @click="store.setFilter(item.value)"
-        >
-          {{ item.label }}
-          <span
-            :class="
-              cn(
-                'min-w-4 rounded-full bg-card px-1.5 text-center text-[11px] leading-4 tabular-nums',
-                store.filter === item.value
-                  ? 'text-accent-foreground'
-                  : 'text-muted-foreground',
-              )
-            "
-          >
-            {{ store.counts[item.value] }}
-          </span>
-        </button>
-
-        <button
-          type="button"
-          class="ml-auto rounded-md px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-red-50 hover:text-destructive disabled:pointer-events-none disabled:opacity-40"
-          :disabled="!store.doneCount"
-          @click="store.clearCompleted()"
-        >
-          清除已完成
-        </button>
-      </div>
-
-      <section class="overflow-hidden rounded-xl border bg-card shadow-sm">
-        <div
-          v-if="isInitialLoading"
-          class="py-16 text-center text-sm text-muted-foreground"
-        >
-          正在加载…
+  <div class="todo-view">
+    <div class="topbar">
+      <div class="topbar-inner">
+        <div class="breadcrumb">
+          <span>工位</span><ChevronRight aria-hidden="true" /><strong>待办清单</strong>
         </div>
+        <label class="search">
+          <Search aria-hidden="true" />
+          <input
+            id="todo-search"
+            ref="searchInput"
+            v-model="store.query"
+            type="search"
+            aria-label="搜索待办"
+            placeholder="搜索待办…"
+            autocomplete="off"
+          />
+          <kbd aria-hidden="true">/</kbd>
+        </label>
+      </div>
+    </div>
 
-        <div v-else-if="!hasVisible" class="px-5 py-14 text-center">
-          <div
-            class="mx-auto mb-3 grid size-14 place-items-center rounded-2xl bg-secondary text-muted-foreground/60"
-          >
-            <ListTodo class="size-6" />
+    <div class="todo-scroll">
+      <div class="content">
+        <header class="heading">
+          <div>
+            <p class="date-line">
+              <CalendarDays aria-hidden="true" /><time :datetime="todayStr()">{{ formatToday() }}</time>
+            </p>
+            <h1>待办清单</h1>
           </div>
-          <div class="text-sm text-secondary-foreground/80">
-            {{ store.total ? "没有匹配的待办" : "这里还没有待办" }}
-          </div>
-          <div class="mt-1 text-xs text-muted-foreground">
-            {{
-              store.total
-                ? "换一个关键词或筛选条件试试"
-                : "在上方输入框写下第一件事，按回车创建"
-            }}
-          </div>
-        </div>
+          <button class="primary" type="button" aria-keyshortcuts="N" @click="focusTitle">
+            <Plus aria-hidden="true" />新建待办 <kbd aria-hidden="true">N</kbd>
+          </button>
+        </header>
 
-        <template v-else>
-          <template v-for="group in groups" :key="group.title || 'list'">
-            <div
-              v-if="group.title"
-              class="px-4 pt-3 pb-1.5 text-[11.5px] font-semibold tracking-wide text-muted-foreground"
-            >
-              {{ group.title }}
+        <TodoStats />
+        <TodoComposer ref="composer" />
+
+        <section class="list-panel" aria-labelledby="list-heading">
+          <header class="list-header">
+            <div class="panel-heading">
+              <h2 id="list-heading">进行中<span class="panel-count">{{ store.pendingCount }}</span></h2>
+              <p class="panel-hint">只显示未完成的任务，勾选后会移入下方「完成记录」</p>
             </div>
-            <TodoItem
-              v-for="todo in group.items"
-              :key="todo.id"
-              :todo="todo"
-              @toggle="store.toggle(todo.id)"
-              @remove="store.remove(todo.id)"
-              @rename="store.rename(todo.id, $event)"
-            />
-          </template>
-        </template>
-      </section>
+          </header>
 
-      <div class="flex items-center gap-2 px-1 pt-3 text-xs text-muted-foreground">
-        <span>共 {{ store.total }} 项</span>
-        <span class="ml-auto">双击标题可重命名</span>
-        <span class="rounded border px-1 py-px text-[11px] text-foreground/70">Enter</span>
-        <span>添加</span>
+          <div class="columns" aria-hidden="true">
+            <span>任务名称</span><span>优先级</span><span>截止日期</span><span>操作</span>
+          </div>
+
+          <div class="task-list">
+            <div v-if="!store.initialized" class="empty" role="status">正在加载…</div>
+            <div v-else-if="!store.visible.length" class="empty">
+              <ListTodo aria-hidden="true" />
+              <strong>{{ emptyState.title }}</strong>
+              <span>{{ emptyState.hint }}</span>
+            </div>
+            <div v-else role="list" aria-label="未完成的任务">
+              <TodoItem
+                v-for="todo in store.visible"
+                :key="todo.id"
+                :todo="todo"
+                @toggle="store.toggle(todo.id)"
+                @remove="store.remove(todo.id)"
+                @rename="store.rename(todo.id, $event)"
+              />
+            </div>
+          </div>
+
+          <footer class="list-footer">
+            <span aria-live="polite">
+              {{ store.query.trim() ? `匹配 ${store.visible.length} 项 · ` : "" }}共 {{ store.pendingCount }} 项待完成
+            </span>
+            <span>双击标题可重命名 <kbd>Enter</kbd> 添加</span>
+          </footer>
+        </section>
+
+        <section class="list-panel history-panel" aria-labelledby="history-heading">
+          <header class="list-header">
+            <div class="panel-heading">
+              <h2 id="history-heading">完成记录</h2>
+              <p class="panel-hint">选择日期，查看当天完成的任务</p>
+            </div>
+            <label class="date-picker">
+              <CalendarDays aria-hidden="true" />
+              <input
+                v-model="store.historyDate"
+                type="date"
+                :max="todayStr()"
+                aria-label="选择要查看的完成日期"
+              />
+            </label>
+          </header>
+
+          <div class="history-toolbar">
+            <div v-if="quickDates.length" class="date-chips" role="group" aria-label="有完成记录的日期">
+              <button
+                v-for="item in quickDates"
+                :key="item.date"
+                class="chip"
+                type="button"
+                :aria-pressed="store.historyDate === item.date"
+                :title="formatDateLabel(item.date)"
+                @click="store.setHistoryDate(item.date)"
+              >
+                {{ chipLabel(item.date) }} <span>{{ item.count }}</span>
+              </button>
+            </div>
+            <span v-else class="panel-hint">还没有任何完成记录</span>
+            <button class="clear" type="button" :disabled="!store.doneCount" @click="store.clearCompleted()">
+              <Trash2 aria-hidden="true" />清空完成记录
+            </button>
+          </div>
+
+          <p class="history-summary">
+            <strong>{{ formatDateLabel(store.historyDate) }}</strong>
+            <span>完成 {{ store.historyDayCount }} 项</span>
+          </p>
+
+          <div class="history-list">
+            <div v-if="!store.historyItems.length" class="empty">
+              <History aria-hidden="true" />
+              <strong>{{ historyEmpty.title }}</strong>
+              <span>{{ historyEmpty.hint }}</span>
+            </div>
+            <div v-else role="list" :aria-label="formatDateLabel(store.historyDate) + '完成的任务'">
+              <TodoHistoryItem
+                v-for="todo in store.historyItems"
+                :key="todo.id"
+                :todo="todo"
+                @restore="store.toggle(todo.id)"
+                @remove="store.remove(todo.id)"
+              />
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   </div>
 </template>
+
+<style src="./todo.css"></style>

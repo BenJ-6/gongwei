@@ -1,9 +1,9 @@
 import { computed, ref } from "vue";
 import { defineStore } from "pinia";
 import { uid } from "@/lib/id";
-import { addDays, filterTodos, isUrgent, sortTodos, todayStr } from "./domain";
+import { addDays, dateOf, isUrgent, matchQuery, sortTodos, todayStr } from "./domain";
 import { todoRepo } from "./repo";
-import type { NewTodoInput, Todo, TodoFilter } from "./types";
+import type { NewTodoInput, Todo } from "./types";
 
 const SEED_FLAG = "gongwei:seeded:v1";
 
@@ -38,8 +38,8 @@ export const useTodoStore = defineStore("todo", () => {
   const todos = ref<Todo[]>([]);
   const loading = ref(false);
   const initialized = ref(false);
-  const filter = ref<TodoFilter>("all");
   const query = ref("");
+  const historyDate = ref(todayStr());
 
   const total = computed(() => todos.value.length);
   const doneCount = computed(() => todos.value.filter((todo) => todo.done).length);
@@ -48,12 +48,30 @@ export const useTodoStore = defineStore("todo", () => {
     total.value ? Math.round((doneCount.value / total.value) * 100) : 0,
   );
   const urgentCount = computed(() => todos.value.filter(isUrgent).length);
-  const counts = computed(() => ({
-    all: total.value,
-    active: pendingCount.value,
-    done: doneCount.value,
-  }));
-  const visible = computed(() => sortTodos(filterTodos(todos.value, filter.value, query.value)));
+  const visible = computed(() =>
+    matchQuery(sortTodos(todos.value.filter((todo) => !todo.done)), query.value),
+  );
+
+  /** 有完成记录的日期，按时间倒序，附带当天完成数量 */
+  const historyDates = computed(() => {
+    const map = new Map<string, number>();
+    for (const todo of todos.value) {
+      if (!todo.done || !todo.completedAt) continue;
+      const date = dateOf(todo.completedAt);
+      map.set(date, (map.get(date) ?? 0) + 1);
+    }
+    return [...map.entries()]
+      .sort(([a], [b]) => (a < b ? 1 : -1))
+      .map(([date, count]) => ({ date, count }));
+  });
+
+  const historyDayTodos = computed(() =>
+    todos.value
+      .filter((todo) => todo.done && todo.completedAt && dateOf(todo.completedAt) === historyDate.value)
+      .sort((a, b) => (b.completedAt ?? 0) - (a.completedAt ?? 0)),
+  );
+  const historyDayCount = computed(() => historyDayTodos.value.length);
+  const historyItems = computed(() => matchQuery(historyDayTodos.value, query.value));
 
   async function init(): Promise<void> {
     if (initialized.value || loading.value) return;
@@ -133,29 +151,31 @@ export const useTodoStore = defineStore("todo", () => {
     await persist(() => todoRepo.clearCompleted());
   }
 
-  function setFilter(next: TodoFilter): void {
-    filter.value = next;
+  function setHistoryDate(date: string): void {
+    historyDate.value = date || todayStr();
   }
 
   return {
     todos,
     loading,
     initialized,
-    filter,
     query,
+    historyDate,
     total,
     doneCount,
     pendingCount,
     percent,
     urgentCount,
-    counts,
     visible,
+    historyDates,
+    historyDayCount,
+    historyItems,
     init,
     add,
     toggle,
     rename,
     remove,
     clearCompleted,
-    setFilter,
+    setHistoryDate,
   };
 });

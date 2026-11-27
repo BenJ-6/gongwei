@@ -1,57 +1,53 @@
 <script setup lang="ts">
+import { computed } from "vue";
+import { Bell, Clock, TrendingUp } from "lucide-vue-next";
+import { todayStr } from "../domain";
 import { useTodoStore } from "../store";
 
 const store = useTodoStore();
+const breakdown = computed(() => {
+  const today = todayStr();
+  const counts = { high: 0, dueToday: 0 };
+  for (const task of store.todos) {
+    if (task.done) continue;
+    if (task.priority === "high") counts.high++;
+    if (task.due === today) counts.dueToday++;
+  }
+  return counts;
+});
 </script>
 
 <template>
-  <section class="grid grid-cols-[1.15fr_1fr_1fr] gap-3 max-[1040px]:grid-cols-1">
-    <div class="flex items-center gap-4 rounded-xl border bg-card px-[18px] py-4 shadow-sm">
-      <div
-        class="grid size-[62px] shrink-0 place-items-center rounded-full"
-        :style="{
-          background: `conic-gradient(var(--primary) ${store.percent}%, var(--border) 0)`,
-        }"
-      >
-        <span
-          class="grid size-12 place-items-center rounded-full bg-card text-[13px] font-semibold tabular-nums"
-        >
-          {{ store.percent }}%
-        </span>
-      </div>
+  <section class="overview" aria-label="任务概览">
+    <article class="overview-card progress-card">
       <div>
-        <div class="text-[13px] text-muted-foreground">整体完成度</div>
-        <div class="mt-0.5 text-[22px] font-semibold tracking-tight tabular-nums">
-          {{ store.doneCount
-          }}<span class="ml-1 text-xs font-medium text-muted-foreground"
-            >/ {{ store.total }} 项</span
-          >
-        </div>
+        <h2 class="metric-label"><TrendingUp aria-hidden="true" />整体完成度</h2>
+        <p class="metric-number"><span>{{ store.doneCount }}</span><small>/ {{ store.total }} 项</small></p>
+        <p class="metric-note">已完成待办</p>
       </div>
-    </div>
+      <div
+        class="ring"
+        :style="{ '--progress': store.percent + '%' }"
+        role="progressbar"
+        aria-label="整体完成度"
+        :aria-valuenow="store.percent"
+      >
+        <span>{{ store.percent }}%</span>
+      </div>
+    </article>
 
-    <div
-      class="flex flex-col justify-center gap-1.5 rounded-xl border bg-card px-[18px] py-4 shadow-sm"
-    >
-      <div class="flex items-center gap-1.5 text-[12.5px] text-muted-foreground">
-        <span class="size-1.5 rounded-full bg-amber-500" />待处理
-      </div>
-      <div class="text-[22px] font-semibold tracking-tight tabular-nums">
-        {{ store.pendingCount
-        }}<span class="ml-1 text-xs font-medium text-muted-foreground">项</span>
-      </div>
-    </div>
+    <article class="overview-card stat pending">
+      <span class="metric-icon"><Clock aria-hidden="true" /></span>
+      <h2 class="metric-label">待处理</h2>
+      <p class="metric-number"><span>{{ store.pendingCount }}</span><small>项</small></p>
+      <p class="metric-note">高优先级 {{ breakdown.high }} 项</p>
+    </article>
 
-    <div
-      class="flex flex-col justify-center gap-1.5 rounded-xl border bg-card px-[18px] py-4 shadow-sm"
-    >
-      <div class="flex items-center gap-1.5 text-[12.5px] text-muted-foreground">
-        <span class="size-1.5 rounded-full bg-destructive" />今天到期 / 已逾期
-      </div>
-      <div class="text-[22px] font-semibold tracking-tight tabular-nums">
-        {{ store.urgentCount
-        }}<span class="ml-1 text-xs font-medium text-muted-foreground">项</span>
-      </div>
-    </div>
+    <article class="overview-card stat urgent">
+      <span class="metric-icon"><Bell aria-hidden="true" /></span>
+      <h2 class="metric-label">需要关注</h2>
+      <p class="metric-number"><span>{{ store.urgentCount }}</span><small>项</small></p>
+      <p class="metric-note">今天到期 {{ breakdown.dueToday }} · 已逾期 {{ store.urgentCount - breakdown.dueToday }}</p>
+    </article>
   </section>
 </template>

@@ -1,26 +1,17 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { CalendarDays, Plus } from "lucide-vue-next";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
+import { CalendarDays, CornerDownLeft, Flag, Plus } from "lucide-vue-next";
 import { useTodoStore } from "../store";
 import type { Priority } from "../types";
 
 const store = useTodoStore();
-
+const titleInput = ref<HTMLInputElement | null>(null);
 const title = ref("");
 const priority = ref<Priority>("normal");
 const due = ref("");
 
-const priorities: Array<{ value: Priority; label: string }> = [
-  { value: "high", label: "高" },
-  { value: "normal", label: "普通" },
-  { value: "low", label: "低" },
-];
-
 function focusTitle(): void {
-  document.getElementById("todo-title")?.focus();
+  titleInput.value?.focus();
 }
 
 async function submit(): Promise<void> {
@@ -30,61 +21,48 @@ async function submit(): Promise<void> {
     return;
   }
 
-  await store.add({ title: value, priority: priority.value, due: due.value || null });
+  const adding = store.add({ title: value, priority: priority.value, due: due.value || null });
+  if (store.query.trim() && !value.toLowerCase().includes(store.query.trim().toLowerCase())) {
+    store.query = "";
+  }
   title.value = "";
   due.value = "";
   priority.value = "normal";
   focusTitle();
+  await adding;
 }
+
+defineExpose({ focusTitle });
 </script>
 
 <template>
-  <form
-    class="mb-3.5 flex items-center gap-1.5 rounded-xl border bg-card p-1.5 shadow-sm transition-[border-color,box-shadow] focus-within:border-ring/60 focus-within:ring-[3px] focus-within:ring-ring/15"
-    @submit.prevent="submit"
-  >
-    <div class="grid size-[34px] shrink-0 place-items-center text-muted-foreground">
-      <Plus class="size-4" />
-    </div>
-
-    <Input
-      id="todo-title"
-      v-model="title"
-      placeholder="添加一条待办，回车即可创建…"
-      autocomplete="off"
-      class="h-[34px] border-0 bg-transparent px-0 shadow-none focus-visible:ring-0"
-    />
-
-    <div class="flex shrink-0 items-center gap-0.5 rounded-lg bg-secondary/70 p-0.5">
-      <button
-        v-for="item in priorities"
-        :key="item.value"
-        type="button"
-        :class="
-          cn(
-            'rounded-md px-2.5 py-1 text-xs transition-colors',
-            priority === item.value
-              ? 'bg-card text-foreground shadow-sm'
-              : 'text-muted-foreground hover:text-foreground',
-          )
-        "
-        @click="priority = item.value"
-      >
-        {{ item.label }}
-      </button>
-    </div>
-
-    <label
-      class="flex shrink-0 items-center gap-1.5 rounded-lg bg-secondary/70 px-2 py-1.5 text-xs text-muted-foreground focus-within:ring-2 focus-within:ring-ring/30"
-    >
-      <CalendarDays class="size-3.5" />
+  <form class="composer" aria-label="添加待办" @submit.prevent="submit">
+    <label class="task-entry">
+      <span class="entry-icon"><Plus aria-hidden="true" /></span>
       <input
-        v-model="due"
-        type="date"
-        class="w-[106px] bg-transparent text-xs text-foreground/80 outline-none"
+        id="todo-title"
+        ref="titleInput"
+        v-model="title"
+        aria-label="待办标题"
+        placeholder="写下一件要做的事…"
+        autocomplete="off"
       />
     </label>
 
-    <Button type="submit" size="sm" class="h-[34px] px-4">添加</Button>
+    <label class="field">
+      <Flag aria-hidden="true" />
+      <select v-model="priority" aria-label="优先级">
+        <option value="high">高优先级</option>
+        <option value="normal">普通</option>
+        <option value="low">低优先级</option>
+      </select>
+    </label>
+
+    <label class="field">
+      <CalendarDays aria-hidden="true" />
+      <input v-model="due" type="date" aria-label="截止日期" title="截止日期（可选）" />
+    </label>
+
+    <button class="primary" type="submit">添加 <CornerDownLeft aria-hidden="true" /></button>
   </form>
 </template>
